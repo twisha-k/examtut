@@ -23,7 +23,7 @@ from PyPDF2 import PdfReader
 from docx import Document
 
 # 🔐 Set Gemini API key
-os.environ["GOOGLE_API_KEY"] = st.secrets["AIzaSyBj54mjn984cSbomw_P-mjyYAyGWMxXsdg"]
+os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Initialize LLM
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
