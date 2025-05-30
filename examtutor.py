@@ -110,7 +110,7 @@ file_chain = LLMChain(llm=llm, prompt=file_prompt)
 # Streamlit UI
 
 st.set_page_config(page_title="📚 Exam Prep Tutor", page_icon="📖")
-st.title("📚 Exam Prep Tutor with File Upload")
+st.title("📚 Easy prep for your upcoming exam!")
 
 st.markdown("""
 Upload your syllabus or notes (PDF, TXT, or DOCX), and ask the chatbot to generate:
