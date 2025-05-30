@@ -28,8 +28,10 @@ from docx import Document
 os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Initialize LLM
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
+llm = ChatGoogleGenerativeAI(model = "models/gemini-pro", temperature=0.5)
 
+ #google_api_key=st.secrets["GOOGLE_API_KEY"]
+st.write("API Key Loaded:", st.secrets.get("GOOGLE_API_KEY", "Missing!"))
 # --------------------------------------------------------------------------------------------------------------
 
 def extract_text_from_file(uploaded_file):                # defining a function to pass a file
