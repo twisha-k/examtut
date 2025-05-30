@@ -29,9 +29,10 @@ from docx import Document
 #os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Initialize LLM
-llm = ChatGoogleGenerativeAI(model = "gemini-pro", temperature=0.5)
-genai.configure(api_key="GOOGLE_API_KEY")
- #google_api_key=st.secrets["GOOGLE_API_KEY"]
+llm = ChatGoogleGenerativeAI(model = "gemini-2.0-flash", google_api_key=st.secrets["GOOGLE_API_KEY"], temperature=0.5)
+
+# genai.configure(api_key="GOOGLE_API_KEY")
+# google_api_key=st.secrets["GOOGLE_API_KEY"]
 
 # --------------------------------------------------------------------------------------------------------------
 
