@@ -12,7 +12,7 @@ Original file is located at
 #!pip install langchain_google_genai
 
 #!pip install PyPDF2 python-docx
-
+# --------------------------------------------------------------------------------------------------------------
 import os
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -22,45 +22,90 @@ from langchain.chains import LLMChain
 from PyPDF2 import PdfReader
 from docx import Document
 
+# --------------------------------------------------------------------------------------------------------------
+
 # 🔐 Set Gemini API key
 os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Initialize LLM
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
 
-def extract_text_from_file(uploaded_file):
-    if uploaded_file.type == "application/pdf":
-        pdf = PdfReader(uploaded_file)
-        text = "".join([page.extract_text() or "" for page in pdf.pages])
-        return text
-    elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        doc = Document(uploaded_file)
-        return "\n".join([p.text for p in doc.paragraphs])
-    elif uploaded_file.type == "text/plain":
-        return uploaded_file.read().decode("utf-8")
-    else:
-        return None
+# --------------------------------------------------------------------------------------------------------------
 
-file_prompt = PromptTemplate(
-    input_variables=["user_instruction", "file_content"],
+def extract_text_from_file(uploaded_file):                # defining a function to pass a file
+    if uploaded_file.type == "application/pdf":           # checks the file type. If the file is a PDF type or not. application/pdf is standard code for pdf file 
+        pdf = PdfReader(uploaded_file)                    # PdfReader is a tool from the PyPDF2 library. 'pdf' is the object where all the pages are stored.
+        
+        text = "".join([page.extract_text() or "" for page in pdf.pages])        # for page in pdf.pages: Go through each page in the PDF.
+                                                                                 # page.extract_text(): Try to get the text from that page.
+                                                                                 # or "": If a page has no text, use an empty string instead.
+                                                                                 # "".join([...]): This puts all the page texts together into one big string.
+        
+        return text                                        # returns all the text from the PDF
+        
+    elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":            # checks is the file is word/doc file
+        doc = Document(uploaded_file)                              # 'Document' is tool from docx. used to open the document file
+        return "\n".join([p.text for p in doc.paragraphs])         # doc.paragraphs: Gives a list of all paragraphs.
+                                                                   # p.text: Gets the actual text from each paragraph.
+                                                                   # "\n".join(...): Joins all paragraph texts together with new lines between them.
+    
+    
+    elif uploaded_file.type == "text/plain":                       # checks if it is a text file or not
+        return uploaded_file.read().decode("utf-8")                # read() -> Reads all the content in the file  
+                                                                   # using utf-8 [which is a standard text format] -> Then decodes it into normal text 
+
+
+    else:
+        return None 2859
+        
+# --------------------------------------------------------------------------------------------------------------
+# Create a prompt template using a tool called PromptTemplate. 
+# This template is used to guide an AI (like ChatGPT) in generating helpful study content using two things:
+#      - The user's instruction (what they want to study or do).
+#      - The content of a file (like class notes or a syllabus).
+
+
+file_prompt = PromptTemplate(                                        # variable -> file_prompt
+                                                                     # PromptTemplate is part of the LangChain library.
+                                                                     # PromptTemplate helps create a reusable message with fill-in-the-blank parts.
+    input_variables=["user_instruction", "file_content"],            # This tells the prompt which placeholders (fill-in-the-blanks) it will use.
+                                                                     # "user_instruction" -> What the user asks (e.g., "Make a summary", "Create flashcards").
+                                                                     # "file_content" -> The actual content from a file (e.g., class notes).
     template="""
 You are an exam preparation tutor.
-
 Based on the following instruction: "{user_instruction}"
-
 Use the provided syllabus or notes below to generate useful study content:
-
 ----- Start of Uploaded Notes -----
 {file_content}
 ----- End of Notes -----
-
-Respond clearly and helpfully.
+Explain the requested content in a simple, clear, and engaging way, just like a helpful tutor would. Break down complex ideas when needed, and make sure the explanation is useful and easy to follow for someone preparing for exams.
 """
 )
 
+# --------------------------------------------------------------------------------------------------------------
+
 file_chain = LLMChain(llm=llm, prompt=file_prompt)
 
-st.set_page_config(page_title="📚 Exam Prep Tutor RAG", page_icon="🧠")
+                        # file_chain -> variable
+                        #    -> It will hold the entire logic -> how to prompt the model and get an answer.
+
+                        # LLMChain() -> class from LangChain that links a prompt to an AI model.
+                        # Think of it like a machine:
+                        #     You give it inputs (like user instructions and notes),
+                        #     It processes those using the prompt, and it outputs a smart, AI-generated answer.
+
+                        # llm=llm -> AI that will read the prompt and generate text.
+                        #         -> You're telling LangChain: "Use this model when running the chain."
+
+                        # prompt=file_prompt -> tells the chain to use the prompt template you defined earlier. 
+                        #                    -> That template gives the AI clear instructions on what to do and what content to work with.
+
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Streamlit UI
+
+st.set_page_config(page_title="📚 Exam Prep Tutor", page_icon="📖")
 st.title("📚 Exam Prep Tutor with File Upload")
 
 st.markdown("""
