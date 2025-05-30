@@ -56,7 +56,7 @@ def extract_text_from_file(uploaded_file):                # defining a function 
 
 
     else:
-        return None 2859
+        return None 
         
 # --------------------------------------------------------------------------------------------------------------
 # Create a prompt template using a tool called PromptTemplate. 
