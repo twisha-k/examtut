@@ -18,6 +18,7 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import google.generativeai as genai
 
 from PyPDF2 import PdfReader
 from docx import Document
@@ -25,11 +26,11 @@ from docx import Document
 # --------------------------------------------------------------------------------------------------------------
 
 # 🔐 Set Gemini API key
-os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+#os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Initialize LLM
-llm = ChatGoogleGenerativeAI(model = "models/gemini-pro", temperature=0.5)
-
+llm = ChatGoogleGenerativeAI(model = "gemini-pro", temperature=0.5)
+genai.configure(api_key="GOOGLE_API_KEY")
  #google_api_key=st.secrets["GOOGLE_API_KEY"]
 
 # --------------------------------------------------------------------------------------------------------------
