@@ -176,7 +176,7 @@ if st.button("Generate from File"):
 
                 # Check if file-based answer is relevant
                 if is_file_answer_relevant(file_answer):
-                    st.success("✅ Answer based on your uploaded notes:")
+                    #st.success("✅ Answer based on your uploaded notes:")
                     st.markdown(file_answer)
                 else:
                     # Fall back to general model answer
