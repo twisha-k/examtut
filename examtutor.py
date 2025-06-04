@@ -61,7 +61,19 @@ def extract_text_from_file(uploaded_file):                # defining a function 
 
     else:
         return None 
-        
+
+#-------------------------------------------------------------------------------------------------------------
+
+def is_file_answer_relevant(answer: str) -> bool:
+    generic_phrases = [
+        "I don't know", "cannot determine", "not specified", "no relevant information", "not mentioned"
+    ]
+    return (
+        answer
+        and len(answer.strip()) > 30
+        and not any(phrase in answer.lower() for phrase in generic_phrases)
+    )
+
 # --------------------------------------------------------------------------------------------------------------
 # Create a prompt template using a tool called PromptTemplate. 
 # This template is used to guide an AI (like ChatGPT) in generating helpful study content using two things:
@@ -104,6 +116,18 @@ file_chain = LLMChain(llm=llm, prompt=file_prompt)
                         # prompt=file_prompt -> tells the chain to use the prompt template you defined earlier. 
                         #                    -> That template gives the AI clear instructions on what to do and what content to work with.
 
+# ------------------------------------------------------------------------------------------------------------
+# Fallback Chain (General Knowledge)
+
+fallback_prompt = PromptTemplate(
+    input_variables=["user_instruction"],
+    template="""
+You are a knowledgeable tutor. Answer the following question:
+{user_instruction}
+Be clear, helpful, and easy to understand.
+"""
+)
+fallback_chain = LLMChain(llm=llm, prompt=fallback_prompt)
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -126,14 +150,39 @@ uploaded_file = st.file_uploader("Upload your notes or syllabus file", type=["pd
 user_instruction = st.text_input("What do you want the bot to do with this content?",
                                   placeholder="e.g., Generate 5 exam questions from these notes.")
 
+#if st.button("Generate from File"):
+    #if uploaded_file and user_instruction:
+      #  with st.spinner("Reading and generating..."):
+        #    file_content = extract_text_from_file(uploaded_file)
+         #   if file_content:
+         #       output = file_chain.run(user_instruction=user_instruction, file_content=file_content[:8000])  # limit input size
+         #       st.success("Here's the result:")
+          #   else:
+         #       st.error("Unsupported file format or reading error.")
+   # else:
+      #  st.warning("Please upload a file and enter an instruction.")
+
+
 if st.button("Generate from File"):
     if uploaded_file and user_instruction:
         with st.spinner("Reading and generating..."):
             file_content = extract_text_from_file(uploaded_file)
             if file_content:
-                output = file_chain.run(user_instruction=user_instruction, file_content=file_content[:8000])  # limit input size
-                st.success("Here's the result:")
-                st.markdown(output)
+                # Try answering from file
+                file_answer = file_chain.run(
+                    user_instruction=user_instruction,
+                    file_content=file_content[:8000]  # optional limit
+                )
+
+                # Check if file-based answer is relevant
+                if is_file_answer_relevant(file_answer):
+                    st.success("✅ Answer based on your uploaded notes:")
+                    st.markdown(file_answer)
+                else:
+                    # Fall back to general model answer
+                    fallback_answer = fallback_chain.run(user_instruction=user_instruction)
+                    st.warning("⚠️ The answer could not be found in the uploaded notes. This is a general explanation:")
+                    st.markdown(fallback_answer)
             else:
                 st.error("Unsupported file format or reading error.")
     else:
